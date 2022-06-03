@@ -7,7 +7,7 @@ from Box2D.examples.framework import (Framework, Keys, main)
 
 from time import time
 
-from CarPhysics import MovingCar,FreeCar
+from CarPhysics.Car import MovingCar,FreeCar
 
 
 class Benchmark :
