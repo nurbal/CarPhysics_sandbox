@@ -4,80 +4,13 @@ from concurrent.futures.thread import _global_shutdown_lock
 from tkinter import E
 from Box2D import *
 from Box2D.examples.framework import (Framework, Keys, main)
-from random import uniform
 
 from time import time
 
+from CarPhysics import MovingCar,FreeCar
+
+
 class Benchmark :
-
-    # moving car (no free move)
-    class MovingCar :
-        def __init__(self,world,initialpos,endpos,speed,initialtrip=0.0):
-            self.initialpos = b2Vec2(initialpos)
-            self.direction = b2Vec2(endpos) - self.initialpos
-            self.tripLen = self.direction.Normalize()
-            self.speed = speed
-            self.trip = initialtrip
-            self.world = world
-
-            carShape = b2PolygonShape(box=(1,2))
-            boxFD = b2FixtureDef(
-                shape=carShape,
-                friction=0.2,
-                density=20,
-            )
-            self.body = self.world.CreateBody(
-                position=self.initialpos,
-                fixtures=boxFD,
-            )
-            # TODO: orienter le body selon self.direction
-
-        def Step(self,timeStep):
-            self.trip += self.speed * timeStep
-            if self.trip > self.tripLen:
-                self.trip = 0.0
-            self.body.position = self.initialpos + (self.direction * self.trip)
-            self.body.linearVelocity = self.direction*self.speed
-            self.body.angularVelocity = 0.0
-            
-    class FreeCar :
-        def __init__(self,world,spawnDistance,maxDistance):
-            self.world = world
-            self.spawnDistance = spawnDistance
-            self.maxDistance = maxDistance
-
-            carShape = b2PolygonShape(box=(3,3))
-            boxFD = b2FixtureDef(
-                shape=carShape,
-                friction=0.2,
-                density=20,
-            )
-            self.body = self.world.CreateDynamicBody(
-                position=(
-                    uniform(-self.spawnDistance,self.spawnDistance),
-                    uniform(-self.spawnDistance,self.spawnDistance),
-                ),
-                fixtures=boxFD,
-            )
-            # TODO: orienter le body selon self.direction
-
-        def Step(self,timeStep):
-            if self.body.position.length > self.maxDistance :
-                self.body.position = (
-                    uniform(-self.spawnDistance,self.spawnDistance),
-                    uniform(-self.spawnDistance,self.spawnDistance),
-                )
-
-
-
-            return
-            # self.trip += self.speed * timeStep
-            # if self.trip > self.tripLen:
-            #     self.trip = 0.0
-            # self.body.position = self.initialpos + (self.direction * self.trip)
-            
-
-
 
     def __init__(self,world):
         self.world = world
@@ -119,34 +52,35 @@ class Benchmark :
         self.world.CreateBody(shapes=b2EdgeShape(vertices=[K,L]))
         self.world.CreateBody(shapes=b2EdgeShape(vertices=[L,A]))
 
-        carShape = b2PolygonShape(box=(1,2))
-        boxFD = b2FixtureDef(
-            shape=carShape,
-            friction=0.2,
-            density=20,
-        )
+        # carShape = b2PolygonShape(box=(1,2))
+        # boxFD = b2FixtureDef(
+        #     shape=carShape,
+        #     friction=0.2,
+        #     density=20,
+        # )
 
-        for x in range(1):
-            for y in range(1):
-                body = self.world.CreateDynamicBody(
-                # body = self.world.CreateBody(
-                    position=(x*4, y*6),
-                    fixtures=boxFD,
-                )
+        # for x in range(1):
+        #     for y in range(1):
+        #         body = self.world.CreateDynamicBody(
+        #         # body = self.world.CreateBody(
+        #             position=(x*4, y*6),
+        #             fixtures=boxFD,
+        #         )
 
         self.cars = []
         for initialtrip in [0.0,l-3]:
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(-w*0.75,l-3),endpos=(-w*0.75,-l+3),speed=15,initialtrip=initialtrip))
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(-w*0.25,l-3),endpos=(-w*0.25,-l+3),speed=25,initialtrip=initialtrip))
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(w*0.75,-l+3),endpos=(w*0.75,l-3),speed=15,initialtrip=initialtrip))
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(w*0.25,-l+3),endpos=(w*0.25,l-3),speed=25,initialtrip=initialtrip))
+            self.cars.append(MovingCar(world=self.world,initialpos=(-w*0.75,l-3),endpos=(-w*0.75,-l+3),speed=15,initialtrip=initialtrip))
+            self.cars.append(MovingCar(world=self.world,initialpos=(-w*0.25,l-3),endpos=(-w*0.25,-l+3),speed=25,initialtrip=initialtrip))
+            self.cars.append(MovingCar(world=self.world,initialpos=(w*0.75,-l+3),endpos=(w*0.75,l-3),speed=15,initialtrip=initialtrip))
+            self.cars.append(MovingCar(world=self.world,initialpos=(w*0.25,-l+3),endpos=(w*0.25,l-3),speed=25,initialtrip=initialtrip))
  
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(l-3,-w*0.75),endpos=(-l+3,-w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(l-3,-w*0.25),endpos=(-l+3,-w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(-l+3,w*0.75),endpos=(l-3,w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
-            self.cars.append(self.MovingCar(world=self.world,initialpos=(-l+3,w*0.25),endpos=(l-3,w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
+            self.cars.append(MovingCar(world=self.world,initialpos=(l-3,-w*0.75),endpos=(-l+3,-w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
+            self.cars.append(MovingCar(world=self.world,initialpos=(l-3,-w*0.25),endpos=(-l+3,-w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
+            self.cars.append(MovingCar(world=self.world,initialpos=(-l+3,w*0.75),endpos=(l-3,w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
+            self.cars.append(MovingCar(world=self.world,initialpos=(-l+3,w*0.25),endpos=(l-3,w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
 
-        self.cars.append(self.FreeCar(self.world,w/4,w*2))
+        self.freeCar = FreeCar(self.world,w/4,w*2)
+        self.cars.append(self.freeCar)
 
     def Step(self,timeStep):
         # timeStep in seconds
@@ -163,11 +97,12 @@ class BenchFramework (Framework):
         super(BenchFramework, self).__init__()
 
         # visual settings...
-        self.settings.pause = True
+        # self.settings.pause = True
         # self.settings.drawMenu = False
 
         # create a benchmark... 
         self.benchmark = Benchmark(self.world)
+        self.freecar = self.benchmark.freeCar
 
     def Step(self, settings):
         super(BenchFramework, self).Step(settings)
@@ -178,15 +113,38 @@ class BenchFramework (Framework):
                 timeStep = 1.0 / settings.hz
                 self.benchmark.Step(timeStep)
 
-if __name__ == "__main__":
-    # main(BenchFramework)
+    def Keyboard(self, key):
+        if key == Keys.K_w:
+            # throttle
+            self.freecar.Throttle(1)
+        if key == Keys.K_s:
+            # break
+            self.freecar.Break(1)
+        turn=0
+        if key == Keys.K_a:
+            # turn left
+            turn -= 1
+        if key == Keys.K_d:
+            # turn right
+            turn += 1
+        self.freecar.Turn(turn)
 
-    world = b2World()
-    bench = Benchmark(world)
-    nbSteps = 100000
-    t0 = time()
-    for i in range(nbSteps):
-        bench.Step(1.0/60)
-    dt = time() - t0
-    freq = float(nbSteps) / dt
-    print(f"Steps={nbSteps} Freq={freq}")
+
+
+
+if __name__ == "__main__":
+    pygame_gui = True
+    if pygame_gui:
+        # play the scene on pybox2d pygame test framework
+        main(BenchFramework)
+    else:
+        # just run headless and time it !
+        world = b2World()
+        bench = Benchmark(world)
+        nbSteps = 100000
+        t0 = time()
+        for i in range(nbSteps):
+            bench.Step(1.0/60)
+        dt = time() - t0
+        freq = float(nbSteps) / dt
+        print(f"Steps={nbSteps} Freq={freq}")
