@@ -1,6 +1,6 @@
 import random as rd
 import Box2D as b2
-
+import math
 
 
 class BaseCar:
@@ -9,6 +9,7 @@ class BaseCar:
 
     def GetPosition(self):
         return b2.b2Vec2(self.body.position)
+        # return self.body.position
 
     
 # Free Car (the one controller manually)
@@ -22,15 +23,18 @@ class FreeCar(BaseCar) :
 
         # vehicle characteristics
         self.maxSpeed = 10          # m/s
+        self.maxReverseSpeed = 1          # m/s
         self.maxThrottleAccel = 5   # m.s-2
+        self.maxThrottleReverseAccel = 1   # m.s-2
         self.maxBreakAccel = 20     # m.s-2
-        # TODO can we have reverse throttle please ? ;-)
         self.minTurnRadius = 5      # m
 
         # vehicle status
-        self.throttle = 0   # [0..1]
-        self.breaks = 0     # [0..1]
-        self.steering = 0   # [-1..1] -1=left, 1=right, 0=center
+        # TODO make them properties !
+        self.throttleAccel = 0   # [-1..1]
+        self.breakAccel = 0     # [0..1]
+        self.steeringValue = 0   # [-1..1] -1=left, 1=right, 0=center
+        self.speed = 0.0
 
 
         carShape = b2.b2PolygonShape(box=(1,2))
@@ -49,22 +53,61 @@ class FreeCar(BaseCar) :
         # TODO: orienter le body selon self.direction
 
     def Step(self,timeStep):
+        # respawn if too far from origin
         if self.body.position.length > self.maxDistance :
             self.body.position = (
                 rd.uniform(-self.spawnDistance,self.spawnDistance),
                 rd.uniform(-self.spawnDistance,self.spawnDistance),
             )
-        return
+        # compute accelerations
+        speedTarget = 0.0
+        acceleration = 0.0
+        if self.throttleAccel > 0:
+            if self.throttleAccel > self.breakAccel:  # accel forward
+                speedTarget = self.maxSpeed
+                acceleration = self.throttleAccel - self.breakAccel
+            else:    # break
+                speedTarget = 0.0
+                acceleration = self.breakAccel - self.throttleAccel   
+        else:
+            if self.throttleAccel < -self.breakAccel:  # accel forward
+                speedTarget = self.maxReverseSpeed
+                acceleration = abs(self.throttleAccel) - self.breakAccel
+            else:    # break
+                speedTarget = 0.0
+                acceleration = self.breakAccel - abs(self.throttleAccel)
+        # compute speed
+        deltaV = acceleration * timeStep
+        if self.speed < speedTarget:
+            self.speed = min(self.speed+deltaV,speedTarget)
+        else:
+            self.speed = max(self.speed-deltaV,speedTarget)
+        # move
+        c = math.cos(self.body.angle)
+        s = math.sin(self.body.angle)
+        forward = b2.b2Vec2(-s,c)   # Y axis=forward, X=right
+        deltaP = forward * (self.speed*timeStep)
+        self.body.position = self.body.position + deltaP
+        # TODO: turn ?
+           
+        
 
     def Throttle(self,value):
-        pass
+        assert value>=-1 and value <=1
+        if value>0:
+            self.throttleAccel = value * self.maxThrottleAccel
+        else:
+            self.throttleAccel = value * self.maxThrottleReverseAccel
+        self.breakAccel = 0 # could be matter of design discussion ?
 
     def Break(self,value):
-        pass
+        assert value>=0 and value <=1
+        self.breakAccel = value * self.maxBreakAccel
+        self.throttleValue = 0 # could be matter of design discussion ?
 
     def Turn(self,value):
         assert value>=-1 and value <=1
-        self.steering = value
+        self.steeringValue = value
 
 
 
