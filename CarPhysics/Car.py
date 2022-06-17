@@ -23,7 +23,7 @@ class FreeCar(BaseCar) :
 
         # vehicle characteristics
         self.maxSpeed = 10          # m/s
-        self.maxReverseSpeed = 1          # m/s
+        self.maxReverseSpeed = -1          # m/s
         self.maxThrottleAccel = 5   # m.s-2
         self.maxThrottleReverseAccel = 1   # m.s-2
         self.maxBreakAccel = 20     # m.s-2
@@ -86,9 +86,19 @@ class FreeCar(BaseCar) :
         c = math.cos(self.body.angle)
         s = math.sin(self.body.angle)
         forward = b2.b2Vec2(-s,c)   # Y axis=forward, X=right
-        deltaP = forward * (self.speed*timeStep)
-        self.body.position = self.body.position + deltaP
-        # TODO: turn ?
+        right = b2.b2Vec2(c,s)
+
+        dP = self.speed*timeStep    # abscisse curviligne
+        (dx,dy) = (0,dP)    # default forward values
+        if abs(self.steeringValue)>0.01:
+            # we are turning
+            ray = 1.0/self.steeringValue * self.minTurnRadius
+            alpha = dP/ray
+            dx = -ray*(1.0-math.cos(alpha))
+            dy = ray*math.sin(alpha)
+            self.body.angle = self.body.angle - alpha
+        self.body.position = self.body.position + dx*right + dy*forward
+        
            
         
 

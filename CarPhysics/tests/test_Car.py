@@ -79,6 +79,18 @@ def test_FreeCar_throttle():
     p2 = car.GetPosition()
     assert p2.y - p1.y > 0.001
 
+def test_FreeCar_reverse_throttle():
+    # test if the car is moving forward if throttled
+    (world,car) = InitFreeCar()
+    car.Throttle(-1.0)   # full throttle !
+    timeStep = 0.01666
+    p1 = car.GetPosition()
+    for _ in range(100):
+        world.Step(timeStep=timeStep,velocityIterations=1,positionIterations=1)
+        car.Step(timeStep)
+    p2 = car.GetPosition()
+    assert p2.y - p1.y < -0.001
+
 
 def test_FreeCar_turn_right():
     # test if the car is moving slightly to the right
