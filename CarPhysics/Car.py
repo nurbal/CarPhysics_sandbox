@@ -123,8 +123,8 @@ class FreeCar(BaseCar) :
 
 
 
-# moving car (no free move)
-class MovingCar() :
+# moving car (straight line, from A to B and back again)
+class MovingCar(BaseCar) :
     def __init__(self,world,initialpos,endpos,speed,initialtrip=0.0):
         self.initialpos = b2.b2Vec2(initialpos)
         self.direction = b2.b2Vec2(endpos) - self.initialpos
@@ -152,3 +152,18 @@ class MovingCar() :
         self.body.position = self.initialpos + (self.direction * self.trip)
         self.body.linearVelocity = self.direction*self.speed
         self.body.angularVelocity = 0.0
+
+# a car following a waypoints trajectory
+class WaypointsCar(BaseCar):
+    def __init__(self,world,trajectory,speed,initialtrip=0):
+        self.trajectory = trajectory
+        self.speed = speed
+        self.trip = initialtrip
+        self.world = world
+    
+    def Step(self,timeStep):
+        self.trip = (self.trip + self.speed * timeStep) % self.trajectory.length
+        (self.body.position,self.body.angle) = self.trajectory.GetPosition(self.trip)
+        
+
+
