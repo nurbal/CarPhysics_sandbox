@@ -1,10 +1,10 @@
 import random as rd
 import Box2D as b2
 import math
-import sys
-import os
-sys.path.insert(0, f"{os.path.dirname(os.path.abspath(__file__))}")
-import WayPoints
+# import sys
+# import os
+# sys.path.insert(0, f"{os.path.dirname(os.path.abspath(__file__))}")
+# import WayPoints
 
 class BaseCar:
     def __init__(self):
