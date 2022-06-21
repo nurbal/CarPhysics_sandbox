@@ -38,4 +38,7 @@ def test_Trajectory_GetPosition():
     t = InitTriangularTrajectory()
     (position,angle) = t.GetPositionAngle(1) # get position and angle at abscissa 1.0
     assert (position-b2Vec2(1,0)).length < 0.0001
-    assert abs(angle+pi/2) < 0.0001
+    assert abs(angle) < 0.0001
+    (position,angle) = t.GetPositionAngle(10) # get position and angle at abscissa 1.0
+    assert (position-b2Vec2(0,2)).length < 0.0001
+    assert abs(angle+math.pi/2) < 0.0001

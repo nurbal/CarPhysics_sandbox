@@ -1,7 +1,10 @@
 import random as rd
 import Box2D as b2
 import math
-
+import sys
+import os
+sys.path.insert(0, f"{os.path.dirname(os.path.abspath(__file__))}")
+import WayPoints
 
 class BaseCar:
     def __init__(self):
@@ -160,10 +163,25 @@ class WaypointsCar(BaseCar):
         self.speed = speed
         self.trip = initialtrip
         self.world = world
+
+        (position,angle)=self.trajectory.GetPositionAngle(initialtrip)
+
+        carShape = b2.b2PolygonShape(box=(2,1))
+        boxFD = b2.b2FixtureDef(
+            shape=carShape,
+            friction=0.2,
+            density=20,
+        )
+        self.body = self.world.CreateBody(
+            position=position,
+            angle=angle,
+            fixtures=boxFD,
+        )
     
     def Step(self,timeStep):
         self.trip = (self.trip + self.speed * timeStep) % self.trajectory.length
-        (self.body.position,self.body.angle) = self.trajectory.GetPosition(self.trip)
+        (self.body.position,self.body.angle) = self.trajectory.GetPositionAngle(self.trip)
+        # TODO velocities
         
 
 

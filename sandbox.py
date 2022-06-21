@@ -36,3 +36,7 @@ def InitTriangularTrajectory():
 
 t = InitTriangularTrajectory()
 print (t)
+
+(position,angle) = t.GetPositionAngle(10)
+print ((position,angle))
+
