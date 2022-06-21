@@ -6,7 +6,7 @@ from Box2D.examples.framework import (Framework, Keys, main)
 
 from time import time
 
-from BenchmarkCircuit import BenchmarkCircuit
+from BenchmarkCircuit import BenchmarkCircuit_Crossing, BenchmarkCircuit_8
 
 
 class BenchFramework (Framework):
@@ -21,7 +21,8 @@ class BenchFramework (Framework):
         # self.settings.drawMenu = False
 
         # create a benchmark... 
-        self.benchmark = BenchmarkCircuit(self.world)
+        self.benchmark = BenchmarkCircuit_8(self.world)
+        # self.benchmark = BenchmarkCircuit_Crossing(self.world)
         self.freecar = self.benchmark.freeCar
 
     def Step(self, settings):
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     else:
         # just run headless and time it !
         world = b2World()
-        bench = BenchmarkCircuit(world)
+        bench = BenchmarkCircuit_Crossing(world)
         nbSteps = 100000
         t0 = time()
         for i in range(nbSteps):
