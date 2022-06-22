@@ -2,7 +2,7 @@ from locale import ABDAY_1, ABMON_10
 from Box2D import *
 from CarPhysics.Car import MovingCar,FreeCar,WaypointsCar
 from CarPhysics.WayPoints import Trajectory
-
+import random
 
 class BenchmarkCircuit_Crossing :
 
@@ -46,33 +46,8 @@ class BenchmarkCircuit_Crossing :
         self.world.CreateBody(shapes=b2EdgeShape(vertices=[K,L]))
         self.world.CreateBody(shapes=b2EdgeShape(vertices=[L,A]))
 
-        # carShape = b2PolygonShape(box=(1,2))
-        # boxFD = b2FixtureDef(
-        #     shape=carShape,
-        #     friction=0.2,
-        #     density=20,
-        # )
-
-        # for x in range(1):
-        #     for y in range(1):
-        #         body = self.world.CreateDynamicBody(
-        #         # body = self.world.CreateBody(
-        #             position=(x*4, y*6),
-        #             fixtures=boxFD,
-        #         )
-
         self.cars = []
         for initialtrip in [0.0,l-3]:
-            # self.cars.append(MovingCar(world=self.world,initialpos=(-w*0.75,l-3),endpos=(-w*0.75,-l+3),speed=15,initialtrip=initialtrip))
-            # self.cars.append(MovingCar(world=self.world,initialpos=(-w*0.25,l-3),endpos=(-w*0.25,-l+3),speed=25,initialtrip=initialtrip))
-            # self.cars.append(MovingCar(world=self.world,initialpos=(w*0.75,-l+3),endpos=(w*0.75,l-3),speed=15,initialtrip=initialtrip))
-            # self.cars.append(MovingCar(world=self.world,initialpos=(w*0.25,-l+3),endpos=(w*0.25,l-3),speed=25,initialtrip=initialtrip))
- 
-            # self.cars.append(MovingCar(world=self.world,initialpos=(l-3,-w*0.75),endpos=(-l+3,-w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
-            # self.cars.append(MovingCar(world=self.world,initialpos=(l-3,-w*0.25),endpos=(-l+3,-w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
-            # self.cars.append(MovingCar(world=self.world,initialpos=(-l+3,w*0.75),endpos=(l-3,w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
-            # self.cars.append(MovingCar(world=self.world,initialpos=(-l+3,w*0.25),endpos=(l-3,w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
-
             self.cars.append(WaypointsCar(world=self.world,trajectory=Trajectory([(-w*0.75,l-3),(-w*0.75,-l+3),(w*0.75,-l+3),(w*0.75,l-3),(-w*0.75,l-3)]),speed=25))
 
         self.freeCar = FreeCar(self.world,w/4,w*2)
@@ -109,6 +84,7 @@ class BenchmarkCircuit_8 :
         #   a---o---f
         #   |   |
         #   b---c
+
         l = 30 # half road length
         w = 9  # half-road width
         _a = b2Vec2(-l,0)
@@ -119,14 +95,15 @@ class BenchmarkCircuit_8 :
         _f = b2Vec2(l,0)
 
         # street borders and trajectory points
-        # a0-------------------border 
+        # a0-------------------street edge 
         # |  a1----------------lane 1 
         # |  |  a2-------------lane 2  
-        # |  |  |  a-----------center
-        # |  |  |  |  a3-------lane 3 
-        # |  |  |  |  |  a4----lane 4 
-        # |  |  |  |  |  |  a5-border 
-        # |  |  |  |  |  |  | 
+        # |  |  |  a...........center-line
+        # |  |  |  :  a3-------lane 3 
+        # |  |  |  :  |  a4----lane 4 
+        # |  |  |  :  |  |  a5-street edge 
+        # |  |  |  :  |  |  | 
+
         a = [_a+NW*w , _a+NW*w*0.75 ,  _a+NW*w*0.25 , _a+SE*w*0.25 , _a+SE*w*0.75 , _a+SE*w ]
         b = [_b+SW*w , _b+SW*w*0.75 ,  _b+SW*w*0.25 , _b+NE*w*0.25 , _b+NE*w*0.75 , _b+NE*w ]
         c = [_c+SE*w , _c+SE*w*0.75 ,  _c+SE*w*0.25 , _c+NW*w*0.25 , _c+NW*w*0.75 , _c+NW*w ]
@@ -134,49 +111,36 @@ class BenchmarkCircuit_8 :
         e = [_e+SW*w , _e+SW*w*0.75 ,  _e+SW*w*0.25 , _e+NE*w*0.25 , _e+NE*w*0.75 , _e+NE*w ]
         f = [_f+NW*w , _f+NW*w*0.75 ,  _f+NW*w*0.25 , _f+SE*w*0.25 , _f+SE*w*0.75 , _f+SE*w ]
 
+        # trajectories of 2x2 lanes
         trajectories=[]
         trajectories.append(Trajectory([a[1],b[1],c[1],d[1],e[1],f[1],a[1]]))
         trajectories.append(Trajectory([a[2],b[2],c[2],d[2],e[2],f[2],a[2]]))
         trajectories.append(Trajectory([a[3],f[3],e[3],d[3],c[3],b[3],a[3]]))
         trajectories.append(Trajectory([a[4],f[4],e[4],d[4],c[4],b[4],a[4]]))
 
-        
+        # street borders
+        edges = [
+            [ [a[0],b[0]], [b[0],c[0]], [c[0],SE*w], [SE*w,f[5]], [f[5],e[5]], [e[5],d[5]], [d[5],NW*w], [NW*w,a[0]], ],
+            [ [a[5],b[5]], [b[5],c[5]], [c[5],SW*w], [SW*w,a[5]], ],
+            [ [d[0],e[0]], [e[0],f[0]], [f[0],NE*w], [NE*w,d[0]], ],
+        ]
 
-        # carShape = b2PolygonShape(box=(1,2))
-        # boxFD = b2FixtureDef(
-        #     shape=carShape,
-        #     friction=0.2,
-        #     density=20,
-        # )
+        for edge in edges:
+            for segment in edge:
+                self.world.CreateBody(shapes=b2EdgeShape(vertices=segment))
 
-        # for x in range(1):
-        #     for y in range(1):
-        #         body = self.world.CreateDynamicBody(
-        #         # body = self.world.CreateBody(
-        #             position=(x*4, y*6),
-        #             fixtures=boxFD,
-        #         )
-
+        # cars !
         self.cars = []
-        # for initialtrip in [0.0,l-3]:
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(-w*0.75,l-3),endpos=(-w*0.75,-l+3),speed=15,initialtrip=initialtrip))
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(-w*0.25,l-3),endpos=(-w*0.25,-l+3),speed=25,initialtrip=initialtrip))
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(w*0.75,-l+3),endpos=(w*0.75,l-3),speed=15,initialtrip=initialtrip))
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(w*0.25,-l+3),endpos=(w*0.25,l-3),speed=25,initialtrip=initialtrip))
- 
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(l-3,-w*0.75),endpos=(-l+3,-w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(l-3,-w*0.25),endpos=(-l+3,-w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(-l+3,w*0.75),endpos=(l-3,w*0.75),speed=15,initialtrip=initialtrip+(l-3)/2))
-        #     self.cars.append(MovingCar(world=self.world,initialpos=(-l+3,w*0.25),endpos=(l-3,w*0.25),speed=25,initialtrip=initialtrip+(l-3)/2))
+        nbCarsPerTrack = 5
 
-        # self.cars.append(WaypointsCar(world=self.world,trajectory=Trajectory([(-w*0.75,l-3),(-w*0.75,-l+3),(w*0.75,-l+3),(w*0.75,l-3),(-w*0.75,l-3)]),speed=25))
-        nbCarsperTrack = 5
-
+        # automatic cars (waypoints)
         for lane in range(4):
-            for c in range(nbCarsperTrack):
-                initialTrip = c*trajectories[lane].length/nbCarsperTrack
-                self.cars.append( WaypointsCar(world=self.world,trajectory=trajectories[lane],speed=25,initialtrip=initialTrip) )
+            speed = random.random()*20+10
+            for c in range(nbCarsPerTrack):
+                initialTrip = c*trajectories[lane].length/nbCarsPerTrack
+                self.cars.append( WaypointsCar(world=self.world,trajectory=trajectories[lane],speed=speed,initialtrip=initialTrip) )
 
+        # free car
         self.freeCar = FreeCar(self.world,w/4,w*2)
         self.cars.append(self.freeCar)
 

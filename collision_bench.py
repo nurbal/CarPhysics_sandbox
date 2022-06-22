@@ -3,8 +3,9 @@
 from concurrent.futures.thread import _global_shutdown_lock
 from tkinter import E
 from Box2D.examples.framework import (Framework, Keys, main)
-
+from Box2D import *
 from time import time
+from tqdm import tqdm
 
 from BenchmarkCircuit import BenchmarkCircuit_Crossing, BenchmarkCircuit_8
 
@@ -57,7 +58,7 @@ class BenchFramework (Framework):
 
 
 if __name__ == "__main__":
-    pygame_gui = True
+    pygame_gui = False
     if pygame_gui:
         # play the scene on pybox2d pygame test framework
         main(BenchFramework)
@@ -65,10 +66,14 @@ if __name__ == "__main__":
         # just run headless and time it !
         world = b2World()
         bench = BenchmarkCircuit_Crossing(world)
-        nbSteps = 100000
+
+        nbSteps = 0
         t0 = time()
-        for i in range(nbSteps):
-            bench.Step(1.0/60)
+        for _ in tqdm(range(10)):
+            t = time()
+            while (time() - t <1):
+                bench.Step(1.0/60)
+                nbSteps+=1
         dt = time() - t0
         freq = float(nbSteps) / dt
         print(f"Steps={nbSteps} Freq={freq}")
