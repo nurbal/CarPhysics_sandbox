@@ -1,0 +1,3 @@
+[submodule "CarPhysics"]
+	path = CarPhysics
+	url = git@github.com:nurbal/Car2DPhysics.git
