@@ -131,7 +131,7 @@ class BenchmarkCircuit_8 :
 
         # cars !
         self.cars = []
-        nbCarsPerTrack = 5
+        nbCarsPerTrack = 10
 
         # automatic cars (waypoints)
         for lane in range(4):
@@ -141,7 +141,7 @@ class BenchmarkCircuit_8 :
                 self.cars.append( WaypointsCar(world=self.world,trajectory=trajectories[lane],speed=speed,initialtrip=initialTrip) )
 
         # free car
-        self.freeCar = FreeCar(self.world,w/4,w*2)
+        self.freeCar = FreeCar(self.world,w/4,l*2)
         self.cars.append(self.freeCar)
 
     def Step(self,timeStep):

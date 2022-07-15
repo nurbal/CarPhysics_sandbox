@@ -58,7 +58,7 @@ class BenchFramework (Framework):
 
 
 if __name__ == "__main__":
-    pygame_gui = False
+    pygame_gui = True
     if pygame_gui:
         # play the scene on pybox2d pygame test framework
         main(BenchFramework)
